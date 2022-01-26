@@ -92,6 +92,7 @@ since we utilise the `store_labels` and `inline_definitions` options, which are 
 
 ## Notes
 
+- A general issue with CommonMark, is that (inline) link/image references are only recognised if the (block level) definitions have already been parsed. This is an issue for incremental parsing, since we wold need to parse all the definitions first, if we were to allow them at "any level".
 - docutils records the source for every node, since it may be different to the parent document, if using the `include` directive.
 
 
