@@ -54,6 +54,9 @@ def cli_myst_spec(args=None):
 
     args = main_parser.parse_args(args)
 
+    if args.subparser_name is None:
+        raise SystemExit(main_parser.format_help())
+
     if args.source is None:
         raise SystemExit("No source provided via -s/--source or stdin.")
     if args.subparser_name == "cmark-to-mdast":

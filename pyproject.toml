@@ -15,7 +15,7 @@ dependencies = ["markdown-it-py~=2.0.1"]
 Home = "https://github.com/chrisjsewell/commonmark-ast-spec"
 
 [project.scripts]
-myst-spec = "myst_spec_py.__main__:cli_cmark_to_mdast"
+myst-spec = "myst_spec_py.__main__:cli_myst_spec"
 
 [project.optional-dependencies]
 testing = ["pytest"]
