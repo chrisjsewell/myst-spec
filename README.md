@@ -58,13 +58,16 @@ but this discussion has not been re-visited since 2017.
   - The AST should be able to be converted back to the source text, without loss of syntax information.
   - Note, this does not mean that round-trip conversion should be "byte equivalent", just that it will produce again the same AST.
   - Line/column information, for example, would not be preserved.
+- The format should allow incremental parsing.
+  - This would allow for sub-parsing of modified document, without having to re-parse the entire document.
 
-Inspiration taken from:
+Inspiration also taken from:
 
 - Markdown-it tokens
 - Docutils doctree's
 - Pandoc JSON AST
 - https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocuments
+- https://github.com/agoose77/jupyterlab-markup/issues/12
 
 ## Markdown-It to MDAST
 
