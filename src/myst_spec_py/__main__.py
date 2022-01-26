@@ -3,28 +3,64 @@ import argparse
 import json
 import sys
 
-from .mdit_to_mdast import parse
+from myst_spec_py.mdast_to_html import render
+from myst_spec_py.mdit_to_mdast import parse
 
 
-def cli_cmark_to_mdast(args=None):
+class SubcommandHelpFormatter(argparse.RawDescriptionHelpFormatter):
+    def _format_action(self, action):
+        """Remove metavar for sub-parsers."""
+        parts = super(argparse.RawDescriptionHelpFormatter, self)._format_action(action)
+        if action.nargs == argparse.PARSER:
+            parts = "\n".join(parts.split("\n")[1:])
+        return parts
+
+
+def cli_myst_spec(args=None):
     """Convert CommonMark to MDAST JSON"""
     main_parser = argparse.ArgumentParser(
-        description="Convert CommonMark to MDAST JSON."
+        prog="myst-spec",
+        description="MyST Specification tools.",
+        formatter_class=SubcommandHelpFormatter,
     )
-    # main_parser.add_argument('source', help='CommonMark source string.')
-    main_parser.add_argument(
+    subparsers = main_parser.add_subparsers(
+        title="Commands", dest="subparser_name", metavar="COMMAND"
+    )
+
+    cmark2mdast_parser = subparsers.add_parser(
+        "to-mdast", help="Convert CommonMark to MDAST JSON."
+    )
+    cmark2mdast_parser.add_argument(
         "-s",
         "--source",
         type=argparse.FileType("r"),
         default=(None if sys.stdin.isatty() else sys.stdin),
         help="CommonMark source file (default is stdin).",
     )
-    main_parser.add_argument("--indent", type=int, help="Indent level of output JSON.")
+    cmark2mdast_parser.add_argument(
+        "--indent", type=int, help="Indent level of output JSON."
+    )
+
+    cmark2html_parser = subparsers.add_parser(
+        "to-html", help="Convert CommonMark to HTML."
+    )
+    cmark2html_parser.add_argument(
+        "-s",
+        "--source",
+        type=argparse.FileType("r"),
+        default=(None if sys.stdin.isatty() else sys.stdin),
+        help="CommonMark source file (default is stdin).",
+    )
+
     args = main_parser.parse_args(args)
+
     if args.source is None:
         raise SystemExit("No source provided via -s/--source or stdin.")
-    print(json.dumps(parse(args.source.read()), indent=args.indent))
+    if args.subparser_name == "cmark-to-mdast":
+        print(json.dumps(parse(args.source.read()), indent=args.indent))
+    elif args.subparser_name == "cmark-to-html":
+        print(render(parse(args.source.read())))
 
 
 if __name__ == "__main__":
-    sys.exit(cli_cmark_to_mdast())
+    sys.exit(cli_myst_spec())

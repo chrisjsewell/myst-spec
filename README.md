@@ -1,8 +1,33 @@
 # MyST Specification (IN-DEVELOPMENT)
 
-A specification for a CommonMark compliant AST format
+A CommonMark compliant AST format for the MyST specification.
 
-## Introduction
+This is some initial work on a specification for the MyST syntax.
+
+The package currently contains functions to:
+
+1. Convert CommonMark to [mdast](https://github.com/syntax-tree/mdast), via parsing with [Markdown-it](https://github.com/markdown-it/markdown-it)
+2. Convert the mdast to CommonMark compliant HTML (tested against <https://spec.commonmark.org/0.30/spec.json>)
+
+```console
+$ pip install .
+$ myst-spec --help
+usage: myst-spec [-h] COMMAND ...
+
+MyST Specification tools.
+
+optional arguments:
+  -h, --help  show this help message and exit
+
+Commands:
+    to-mdast  Convert CommonMark to MDAST JSON.
+    to-html   Convert CommonMark to HTML.
+
+```
+
+This can then be extended, to include the MyST syntax nodes.
+
+## The CommonMark Specification
 
 The creation of [commonmark-spec] represented a great step forward in Markdown standardisation.
 However, the current specification only specifies the expected HTML output, which conflates two aspects of markup language processing:
@@ -41,9 +66,24 @@ Inspiration taken from:
 - Pandoc JSON AST
 - https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocuments
 
+## Markdown-It to MDAST
+
+[Markdown-it-py](https://github.com/ExecutableBookProject/markdown-it-py) is used as the parser here,
+since it is what we currently use for [MyST-Parser](https://github.com/executablebooks/MyST-Parser).
+It is the best Python Markdown parser I know of:
+
+- It is pure-python
+- It is fast
+- It is CommonMark compliant
+- It captures source line number information
+- It is easy to extend by plugins
+
+However, it is not actually the ideal reference implementation, since it does not capture source column position information.
+Also, the conversion here is not currently supported by the Markdown-IT JS implementation,
+since we utilise the `store_labels` and `inline_definitions` options, which are only implemented in markdown-it-py.
+
 ## Notes
 
-- Markdown-it is not actually the ideal reference implementation, since it does not capture source columns.
 - docutils records the source for every node, since it may be different to the parent document, if using the `include` directive.
 
 
