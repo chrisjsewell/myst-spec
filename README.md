@@ -86,8 +86,8 @@ It is the best Python Markdown parser I know of:
 - It captures source line number information
 - It is easy to extend by plugins
 
-However, it is not actually the ideal reference implementation, since it does not capture source column position information.
-Also, the conversion here is not currently supported by the Markdown-IT JS implementation,
+However, it is not actually the ideal reference implementation, since it does not capture source column position information (currently we just always set 1), or specific line information for inline nodes.
+Also, the conversion here is not currently supported by the Markdown-IT JavaScript implementation,
 since we utilise the `store_labels` and `inline_definitions` options, which are only implemented in markdown-it-py.
 
 ## Notes
