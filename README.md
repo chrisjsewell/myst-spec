@@ -23,6 +23,11 @@ Commands:
     to-mdast  Convert CommonMark to MDAST JSON.
     to-html   Convert CommonMark to HTML.
 
+$ echo "hallo" | myst-spec to-mdast
+{"type": "root", "children": [{"type": "paragraph", "position": {"start": {"line": 1, "column": 1}, "end": {"line": 2, "column": 1}}, "children": [{"type": "text", "value": "hallo"}]}]}
+
+$ echo "hallo" | myst-spec to-html
+<p>hallo</p>
 ```
 
 This can then be extended, to include the MyST syntax nodes.

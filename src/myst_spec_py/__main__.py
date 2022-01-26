@@ -59,9 +59,9 @@ def cli_myst_spec(args=None):
 
     if args.source is None:
         raise SystemExit("No source provided via -s/--source or stdin.")
-    if args.subparser_name == "cmark-to-mdast":
+    if args.subparser_name == "to-mdast":
         print(json.dumps(parse(args.source.read()), indent=args.indent))
-    elif args.subparser_name == "cmark-to-html":
+    elif args.subparser_name == "to-html":
         print(render(parse(args.source.read())))
 
 
