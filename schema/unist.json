@@ -1,0 +1,73 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Syntactic unit in a unist syntax tree.",
+  "type": "object",
+  "$defs": {
+    "point": {
+      "description": "A point represents one place in a source file.",
+      "type": "object",
+      "required": ["line", "column"],
+      "properties": {
+        "line": {
+          "description": "The line number of the point.",
+          "type": "integer",
+          "minimum": 1
+        },
+        "column": {
+          "description": "The column number of the point.",
+          "type": "integer",
+          "minimum": 1
+        },
+        "offset": {
+          "description": "The offset of the point.",
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "position": {
+      "description": "A position represents the location of a node in a source file.",
+      "type": "object",
+      "required": ["start", "end"],
+      "properties": {
+        "start": {
+          "description": "The start position of the position.",
+          "$ref": "#/definitions/point"
+        },
+        "end": {
+          "description": "The end position of the position.",
+          "$ref": "#/definitions/point"
+        },
+        "indent": {
+          "description": "The indentation of the position.",
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  },
+  "required": ["type"],
+  "properties": {
+    "type": {
+      "description": "The type of the node.",
+      "type": "string"
+    },
+    "position": {
+      "$ref": "#/definitions/position"
+    },
+    "data": {
+      "description": "Information associated by the ecosystem with the node.",
+      "type": "object"
+    },
+    "children": {
+      "description": "The children of a Parent node.",
+      "type": "array",
+      "items": {
+        "$ref": "#"
+      }
+    },
+    "value": {
+      "description": "The value of a Literal node."
+    }
+  }
+}

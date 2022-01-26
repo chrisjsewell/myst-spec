@@ -1,0 +1,406 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "mdast-cmark",
+  "description": "Syntactic unit in a strictly CommonMark compliant mdast syntax tree.",
+  "type": "object",
+  "$defs": {
+    "point": {
+      "description": "A point represents one place in a source file.",
+      "type": "object",
+      "required": ["line", "column"],
+      "properties": {
+        "line": {
+          "description": "The line number of the point.",
+          "type": "integer",
+          "minimum": 1
+        },
+        "column": {
+          "description": "The column number of the point.",
+          "type": "integer",
+          "minimum": 1
+        },
+        "offset": {
+          "description": "The offset of the point.",
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "position": {
+      "description": "A position represents the location of a node in a source file.",
+      "type": "object",
+      "required": ["start", "end"],
+      "properties": {
+        "start": {
+          "description": "The start point of the position.",
+          "$ref": "#/$defs/point"
+        },
+        "end": {
+          "description": "The end point of the position.",
+          "$ref": "#/$defs/point"
+        },
+        "indent": {
+          "description": "The indentation of the position.",
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "children": {
+      "description": "The children of a Parent node.",
+      "type": "array",
+      "items": {
+        "$ref": "#"
+      }
+    },
+    "TransparentContent": {
+      "description": "Derived from the content model of its parent. This is used to prohibit nested links (and link references).",
+      "type": "array",
+      "items": {
+        "$ref": "#"
+      }
+    },
+    "Content": {
+      "description": "runs of text that form definitions and paragraphs.",
+      "type": "array",
+      "items": {
+        "$ref": "#",
+        "properties": {
+          "type": {
+            "enum": ["definition", "paragraph"]
+          }
+        }
+      }
+    },
+    "FlowContent": {
+      "description": "the sections of a document",
+      "type": "array",
+      "items": {
+        "$ref": "#",
+        "properties": {
+          "type": {
+            "enum": [
+              "blockquote",
+              "code",
+              "heading",
+              "html",
+              "list",
+              "thematicBreak",
+              "definition",
+              "paragraph"
+            ]
+          }
+        }
+      }
+    },
+    "ListContent": {
+      "description": "The items in a list.",
+      "type": "array",
+      "items": {
+        "$ref": "#",
+        "properties": {
+          "type": {
+            "enum": ["listItem"]
+          }
+        }
+      }
+    },
+    "PhrasingContent": {
+      "description": "Text in a document, and its markup.",
+      "type": "array",
+      "items": {
+        "$ref": "#",
+        "properties": {
+          "type": {
+            "enum": [
+              "link",
+              "linkReference",
+              "break",
+              "emphasis",
+              "html",
+              "image",
+              "inlineCode",
+              "imageReference",
+              "strong",
+              "text"
+            ]
+          }
+        }
+      }
+    },
+    "StaticPhrasingContent": {
+      "description": "Text in a document, and its markup, that is not intended for user interaction.",
+      "type": "array",
+      "items": {
+        "$ref": "#",
+        "properties": {
+          "type": {
+            "enum": [
+              "break",
+              "emphasis",
+              "html",
+              "image",
+              "inlineCode",
+              "imageReference",
+              "strong",
+              "text"
+            ]
+          }
+        }
+      }
+    },
+    "resourceUrl": {
+      "description": "A URL to the referenced resource.",
+      "type": "string",
+      "format": "uri"
+    },
+    "resourceTitle": {
+      "description": "Advisory information for the resource, such as would be appropriate for a tooltip.",
+      "type": ["string", "null"]
+    },
+    "associationIdentifier": {
+      "description": "A normalized internal relation from one node to another",
+      "type": "string"
+    },
+    "associationLabel": {
+      "description": "A human-readable label for the relation",
+      "type": ["string", "null"]
+    },
+    "referenceType": {
+      "description": "The explicitness of a reference.",
+      "type": "string",
+      "enum": ["full", "collapsed", "shortcut"]
+    },
+    "alternativeAlt": {
+      "description": "Equivalent content for environments that cannot represent the node as intended.",
+      "type": ["string", "null"]
+    }
+  },
+  "required": ["type"],
+  "properties": {
+    "type": {
+      "description": "The type of the node.",
+      "type": "string"
+    },
+    "position": {
+      "$ref": "#/$defs/position"
+    },
+    "data": {
+      "description": "Information associated by the ecosystem with the node.",
+      "type": "object"
+    }
+  },
+  "oneOf": [
+    {
+      "description": "A document.",
+      "properties": {
+        "type": { "enum": ["root"] },
+        "children": { "$ref": "#/$defs/children" }
+      }
+    },
+    {
+      "description": "A unit of discourse dealing with a particular point or idea.",
+      "properties": {
+        "type": { "enum": ["paragraph"] },
+        "children": { "$ref": "#/$defs/PhrasingContent" }
+      }
+    },
+    {
+      "description": "A heading of a section.",
+      "properties": {
+        "type": { "enum": ["heading"] },
+        "depth": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 6
+        },
+        "children": { "$ref": "#/$defs/PhrasingContent" }
+      }
+    },
+    {
+      "description": "a thematic break, such as a scene change in a story, a transition to another topic, or a new document",
+      "properties": {
+        "type": { "enum": ["thematicBreak"] }
+      }
+    },
+    {
+      "description": "A section quoted from somewhere else",
+      "properties": {
+        "type": { "enum": ["blockquote"] },
+        "children": { "$ref": "#/$defs/FlowContent" }
+      }
+    },
+    {
+      "description": "A list of items",
+      "properties": {
+        "type": { "enum": ["list"] },
+        "ordered": {
+          "type": ["boolean", "null"]
+        },
+        "start": {
+          "description": "the starting number of the list (when ordered)",
+          "type": ["integer", "null"],
+          "minimum": 1
+        },
+        "spread": {
+          "description": "One or more of its children are separated with a blank line from its siblings.",
+          "type": ["boolean", "null"]
+        },
+        "children": { "$ref": "#/$defs/ListContent" }
+      }
+    },
+    {
+      "properties": {
+        "type": { "enum": ["listItem"] },
+        "spread": {
+          "description": "The item contains two or more children separated by a blank line.",
+          "type": ["boolean", "null"]
+        },
+        "children": { "$ref": "#/$defs/FlowContent" }
+      }
+    },
+    {
+      "description": "A fragment of raw HTML",
+      "properties": {
+        "type": { "enum": ["html"] },
+        "value": {
+          "type": "string"
+        }
+      }
+    },
+    {
+      "description": "A block of preformatted text",
+      "properties": {
+        "type": { "enum": ["code"] },
+        "lang": {
+          "description": "The language of computer code being marked up",
+          "type": "string"
+        },
+        "meta": {
+          "description": "Custom information relating to the node.",
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      }
+    },
+    {
+      "description": "A resource: `[Alpha]: https://example.com`",
+      "properties": {
+        "type": { "enum": ["definition"] },
+        "identifier": {
+          "$ref": "#/$defs/associationIdentifier"
+        },
+        "label": {
+          "$ref": "#/$defs/associationLabel"
+        },
+        "url": {
+          "$ref": "#/$defs/resourceUrl"
+        },
+        "title": {
+          "$ref": "#/$defs/resourceTitle"
+        }
+      }
+    },
+    {
+      "properties": {
+        "type": { "enum": ["text"] },
+        "value": {
+          "type": "string"
+        }
+      }
+    },
+    {
+      "description": "stress emphasis of some contents.",
+      "properties": {
+        "type": { "enum": ["emphasis"] },
+        "children": { "$ref": "#/$defs/TransparentContent" }
+      }
+    },
+    {
+      "description": "Strong importance, seriousness, or urgency for some contents.",
+      "properties": {
+        "type": { "enum": ["strong"] },
+        "children": { "$ref": "#/$defs/TransparentContent" }
+      }
+    },
+    {
+      "description": "A fragment of computer code",
+      "properties": {
+        "type": { "enum": ["inlineCode"] },
+        "value": {
+          "type": "string"
+        }
+      }
+    },
+    {
+      "description": "A (hard) line break",
+      "properties": {
+        "type": { "enum": ["break"] }
+      }
+    },
+    {
+      "description": "A hyperlink: [alpha](https://example.com \"bravo\")",
+      "properties": {
+        "type": { "enum": ["link"] },
+        "url": {
+          "$ref": "#/$defs/resourceUrl"
+        },
+        "title": {
+          "$ref": "#/$defs/resourceTitle"
+        },
+        "children": { "$ref": "#/$defs/StaticPhrasingContent" }
+      }
+    },
+    {
+      "description": "An image: ![alpha](https://example.com/favicon.ico \"bravo\")",
+      "properties": {
+        "type": { "enum": ["image"] },
+        "url": {
+          "$ref": "#/$defs/resourceUrl"
+        },
+        "title": {
+          "$ref": "#/$defs/resourceTitle"
+        },
+        "alt": {
+          "$ref": "#/$defs/alternativeAlt"
+        }
+      }
+    },
+    {
+      "description": "A hyperlink through association: [alpha][Bravo]",
+      "properties": {
+        "type": { "enum": ["linkReference"] },
+        "identifier": {
+          "$ref": "#/$defs/associationIdentifier"
+        },
+        "label": {
+          "$ref": "#/$defs/associationLabel"
+        },
+        "referenceType": {
+          "$ref": "#/$defs/referenceType"
+        },
+        "children": { "$ref": "#/$defs/StaticPhrasingContent" }
+      }
+    },
+    {
+      "description": "An image through association: ![alpha][bravo]",
+      "properties": {
+        "type": { "enum": ["imageReference"] },
+        "identifier": {
+          "$ref": "#/$defs/associationIdentifier"
+        },
+        "label": {
+          "$ref": "#/$defs/associationLabel"
+        },
+        "referenceType": {
+          "$ref": "#/$defs/referenceType"
+        },
+        "alt": {
+          "$ref": "#/$defs/alternativeAlt"
+        }
+      }
+    }
+  ]
+}
