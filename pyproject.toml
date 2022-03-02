@@ -19,6 +19,7 @@ myst-spec = "myst_spec_py.__main__:cli_myst_spec"
 
 [project.optional-dependencies]
 testing = ["pytest"]
+docs = ["myst_parser~=0.17.0", "sphinx-design", "sphinx-copybutton", "furo"]
 
 [tool.isort]
 profile = "black"
@@ -42,4 +43,15 @@ commands = pytest {posargs:tests/}
 description = Run the CLI
 commands =
     python -m myst_spec_py {posargs}
+
+[testenv:docs]
+description = Generate documentation
+extras = docs
+allowlist_externals =
+    echo
+    rm
+commands_pre = rm -rf docs/_build/html
+commands = sphinx-build -nW --keep-going -b html docs/ docs/_build/html
+commands_post =
+    echo "open docs/_build/html/index.html"
 """
